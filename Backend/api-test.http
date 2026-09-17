@@ -1,0 +1,48 @@
+### List all users
+GET http://localhost:3000/users HTTP/1.1
+
+
+
+### Create a user
+POST http://localhost:3000/users HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "musira@gmail.com",
+  "name": "Musira Josh",
+  "password": "josh123",
+  "role": "STANDARD_USER"
+}
+
+
+### Login a user
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+  "email": "josh@gmail.com",
+  "password": "josh123"
+}
+
+
+### Refresh tokens
+POST http://localhost:3000/users/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoicmVmcmVzaCIsImlzcyI6Imlzc3VlLXRyYWNraW5nLWFwaSIsImF1ZCI6Imlzc3VlLXRyYWNraW5nLWNsaWVudCIsInN1YiI6IjEiLCJqdGkiOiI1MTBjMGRkYi1lYWIzLTRkOWEtOGMzNS02ODViZTRiMDU3MjgiLCJpYXQiOjE3ODk2ODQ1MzcsImV4cCI6MTc5MDI4OTMzN30.evxVzHxILfcVcbdHxmVPqncN8n1okEb-ZgWdjCZMvwg"
+}
+
+
+### Get current user with an access token
+GET http://localhost:3000/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQURNSU4iLCJ0eXBlIjoiYWNjZXNzIiwiaXNzIjoiaXNzdWUtdHJhY2tpbmctYXBpIiwiYXVkIjoiaXNzdWUtdHJhY2tpbmctY2xpZW50Iiwic3ViIjoiMSIsImlhdCI6MTc4OTY4NDYzOCwiZXhwIjoxNzg5Njg1NTM4fQ.C6wTabPmtI29XMdxn9lHU4L8VTLIcHaLWU7_BpzoVz0
+
+
+### Logout and revoke a refresh token
+POST http://localhost:3000/users/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoicmVmcmVzaCIsImlzcyI6Imlzc3VlLXRyYWNraW5nLWFwaSIsImF1ZCI6Imlzc3VlLXRyYWNraW5nLWNsaWVudCIsInN1YiI6IjEiLCJqdGkiOiJhZjAzZDNiNC1iMGQ2LTRmM2UtYWMxOC1kZGExNzI3NWJhZTMiLCJpYXQiOjE3ODk2ODQ2NzksImV4cCI6MTc5MDI4OTQ3OX0.OQGPwAWs0wDkU_OaaRxUT690LeNNV8x07OarzTSknVo"
+}
