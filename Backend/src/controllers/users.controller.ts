@@ -43,6 +43,15 @@ type StoredRefreshToken = {
     createdAt: Date;
 };
 
+export async function listUsers(_req: Request, res: Response) {
+    const users = await prisma.user.findMany({
+        select: { id: true, name: true, email: true, role: true },
+        orderBy: { name: "asc" },
+    });
+
+    return res.status(200).json(users);
+}
+
 async function issueTokenPair(user: { id: number; role: string }) {
     const accessToken = await createAccessToken(user);
     const refreshToken = await createRefreshToken(user);

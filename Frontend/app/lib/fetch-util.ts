@@ -47,6 +47,12 @@ const updateData = async <T>(url: string, data: unknown): Promise<T> => {
   return response.data;
 };
 
+const patchData = async <T>(url: string, data: unknown): Promise<T> => {
+  const response = await api.patch(url, data);
+
+  return response.data;
+};
+
 const fetchData = async <T>(url: string): Promise<T> => {
   const response = await api.get(url);
 
@@ -59,4 +65,4 @@ const deleteData = async <T>(url: string): Promise<T> => {
   return response.data;
 };
 
-export { postData, fetchData, updateData, deleteData };
+export { postData, fetchData, updateData, patchData, deleteData };
