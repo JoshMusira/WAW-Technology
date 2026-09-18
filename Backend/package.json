@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "prisma generate && tsc",
-    "start": "node dist/src/index.js",
+    "start": "tsx dist/src/index.js",
     "start:container": "prisma migrate deploy && npm start",
     "dev": "tsx watch src/index.ts"
   },
