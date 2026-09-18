@@ -49,6 +49,7 @@ model User {
   // Comments this user authored
   comments       Comment[]
   refreshTokens  RefreshToken[]
+  activityLogs   ActivityLog[]
 
   @@map("users")
 }
@@ -105,4 +106,19 @@ model Comment {
 
   @@index([issueId])
   @@map("comments")
+}
+
+model ActivityLog {
+  id          Int      @id @default(autoincrement())
+  action      String
+  entityType  String
+  entityId    Int?
+  description String
+  actorId     Int
+  actor       User     @relation(fields: [actorId], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actorId])
+  @@map("activity_logs")
 }

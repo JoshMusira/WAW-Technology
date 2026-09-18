@@ -6,6 +6,7 @@ export default [
         route("dashboard", "routes/dashboard.tsx"),
         route("issues", "routes/issues.tsx"),
         route("users", "routes/users.tsx"),
+        route("activity", "routes/activity.tsx"),
 
     ]),
     layout("auth-layout.tsx", [

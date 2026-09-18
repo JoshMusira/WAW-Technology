@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { Priority, Status } from "../../generated/prisma/enums";
+import { createActivityLog } from "../lib/activity";
 import { prisma } from "../lib/prisma";
 
 type IssueBody = {
@@ -85,6 +86,13 @@ export async function createIssue(req: Request, res: Response) {
             },
             include: issueInclude,
         });
+        await createActivityLog({
+            actorId: req.auth!.userId,
+            action: "CREATED",
+            entityType: "ISSUE",
+            entityId: issue.id,
+            description: `Created issue \"${issue.title}\"`,
+        });
         return res.status(201).json(issue);
     } catch (error) {
         console.error("Failed to create issue", error);
@@ -120,6 +128,20 @@ export async function updateIssue(req: Request, res: Response) {
             },
             include: issueInclude,
         });
+        const changedFields = [
+            body.title !== undefined ? "title" : null,
+            body.description !== undefined ? "description" : null,
+            body.priority !== undefined ? "priority" : null,
+            body.status !== undefined ? "status" : null,
+            body.assignedToId !== undefined ? "assignee" : null,
+        ].filter((field): field is string => field !== null);
+        await createActivityLog({
+            actorId: req.auth!.userId,
+            action: "UPDATED",
+            entityType: "ISSUE",
+            entityId: issue.id,
+            description: `Updated issue \"${issue.title}\"${changedFields.length ? ` (${changedFields.join(", ")})` : ""}`,
+        });
         return res.status(200).json(issue);
     } catch (error) {
         console.error("Failed to update issue", error);
@@ -136,6 +158,13 @@ export async function addComment(req: Request, res: Response) {
         const comment = await prisma.comment.create({
             data: { body: body.body.trim(), issueId, authorId: req.auth!.userId },
             include: { author: { select: { id: true, name: true } } },
+        });
+        await createActivityLog({
+            actorId: req.auth!.userId,
+            action: "COMMENTED",
+            entityType: "ISSUE",
+            entityId: issueId,
+            description: `Added a comment to issue #${issueId}`,
         });
         return res.status(201).json(comment);
     } catch {

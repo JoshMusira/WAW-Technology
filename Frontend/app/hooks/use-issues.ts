@@ -37,6 +37,7 @@ export type Issue = {
 };
 
 export type DirectoryUser = IssueUser & { role: string };
+export type UserRole = "ADMIN" | "STANDARD_USER";
 
 type IssueFilters = {
     status?: string;
@@ -70,7 +71,7 @@ export function useIssues(filters: IssueFilters) {
 
     return useQuery({
         queryKey: ["issues", filters],
-        queryFn: () => fetchData<Issue[]>(`/issues${queryString ? `?${queryString}` : ""}`),
+        queryFn: () => fetchData<Issue[]>(queryString ? `/issues?${queryString}` : "/issues"),
     });
 }
 
@@ -78,6 +79,19 @@ export function useUsers() {
     return useQuery({
         queryKey: ["users"],
         queryFn: () => fetchData<DirectoryUser[]>("/users"),
+    });
+}
+
+export function useUpdateUserRole() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, role }: { id: number; role: UserRole }) => patchData<DirectoryUser>(`/users/${id}/role`, { role }),
+        onSuccess: async () => {
+            toast.success("User role updated.");
+            await queryClient.invalidateQueries({ queryKey: ["users"] });
+        },
+        onError: (error) => toast.error(errorMessage(error, "Unable to update user role.")),
     });
 }
 

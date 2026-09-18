@@ -7,6 +7,7 @@ const navigation = [
     { label: "Dashboard", to: "/dashboard" },
     { label: "Issues", to: "/issues" },
     { label: "Users", to: "/users" },
+    { label: "Activity log", to: "/activity" },
 ];
 
 export default function AppLayout() {

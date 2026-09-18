@@ -6,6 +6,7 @@ import {
 } from "node:crypto";
 import { promisify } from "node:util";
 import type { Request, Response } from "express";
+import { createActivityLog } from "../lib/activity";
 import { prisma } from "../lib/prisma";
 import {
     createAccessToken,
@@ -33,6 +34,10 @@ type RefreshTokenBody = {
     refreshToken?: unknown;
 };
 
+type UpdateUserRoleBody = {
+    role?: unknown;
+};
+
 type StoredRefreshToken = {
     id: string;
     userId: number;
@@ -50,6 +55,47 @@ export async function listUsers(_req: Request, res: Response) {
     });
 
     return res.status(200).json(users);
+}
+
+export async function updateUserRole(req: Request, res: Response) {
+    const actor = req.auth
+        ? await prisma.user.findUnique({ where: { id: req.auth.userId }, select: { role: true } })
+        : null;
+
+    if (actor?.role !== "ADMIN") {
+        return res.status(403).json({ error: "Only administrators can change user roles" });
+    }
+
+    const userId = Number(req.params.id);
+    const { role } = req.body as UpdateUserRoleBody;
+
+    if (!Number.isInteger(userId) || userId < 1) {
+        return res.status(400).json({ error: "Invalid user id" });
+    }
+
+    if (role !== "ADMIN" && role !== "STANDARD_USER") {
+        return res.status(400).json({ error: "role must be ADMIN or STANDARD_USER" });
+    }
+
+    try {
+        const user = await prisma.user.update({
+            where: { id: userId },
+            data: { role },
+            select: { id: true, name: true, email: true, role: true },
+        });
+        await createActivityLog({
+            actorId: req.auth!.userId,
+            action: "ROLE_CHANGED",
+            entityType: "USER",
+            entityId: user.id,
+            description: `Changed ${user.name}'s role to ${user.role === "ADMIN" ? "Administrator" : "Standard user"}`,
+        });
+
+        return res.status(200).json(user);
+    } catch (error: unknown) {
+        console.error("Failed to update user role", { userId, error });
+        return res.status(404).json({ error: "User not found" });
+    }
 }
 
 async function issueTokenPair(user: { id: number; role: string }) {
@@ -165,6 +211,13 @@ export async function loginUser(req: Request, res: Response) {
             INSERT INTO "refresh_tokens" ("id", "tokenHash", "userId", "expiresAt")
             VALUES (${randomUUID()}, ${hashRefreshToken(tokens.refreshToken)}, ${user.id}, ${getRefreshTokenExpiresAt()})
         `;
+        await createActivityLog({
+            actorId: user.id,
+            action: "SIGNED_IN",
+            entityType: "USER",
+            entityId: user.id,
+            description: "Signed in",
+        });
 
         return res.status(200).json({
             ...tokens,
