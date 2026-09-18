@@ -1,0 +1,62 @@
+import axios from "axios";
+
+export const BASE_URL = "http://localhost:3000";
+
+const api = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  }
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    if (token.length > 8192) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.dispatchEvent(new Event("force-logout"));
+    } else {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
+// Add a global handler for 401 errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Dispatch a custom event to trigger logout in AuthProvider
+      window.dispatchEvent(new Event("force-logout"));
+    }
+    return Promise.reject(error);
+  }
+);
+
+const postData = async <T>(url: string, data: unknown): Promise<T> => {
+  const response = await api.post(url, data);
+
+  return response.data;
+};
+
+const updateData = async <T>(url: string, data: unknown): Promise<T> => {
+  const response = await api.put(url, data);
+
+  return response.data;
+};
+
+const fetchData = async <T>(url: string): Promise<T> => {
+  const response = await api.get(url);
+
+  return response.data;
+};
+
+const deleteData = async <T>(url: string): Promise<T> => {
+  const response = await api.delete(url);
+
+  return response.data;
+};
+
+export { postData, fetchData, updateData, deleteData };
