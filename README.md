@@ -33,6 +33,7 @@ A full-stack issue tracking application for creating, assigning, prioritizing, a
 - React 19
 - React Router 8 with server-side rendering
 - TypeScript
+- Shadcn ui
 - Vite
 - TanStack Query integration for server state
 - Axios for API requests
