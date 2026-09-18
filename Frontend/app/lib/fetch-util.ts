@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const BASE_URL = "http://localhost:3000";
+export const BASE_URL = import.meta.env.VITE_API_URL || "https://waw-technology.onrender.com";
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -27,7 +27,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response?.status === 401) {
       // Dispatch a custom event to trigger logout in AuthProvider
       window.dispatchEvent(new Event("force-logout"));
     }
