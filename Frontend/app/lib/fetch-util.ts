@@ -14,6 +14,7 @@ api.interceptors.request.use((config) => {
   if (token) {
     if (token.length > 8192) {
       localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
       window.dispatchEvent(new Event("force-logout"));
     } else {
@@ -27,8 +28,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Dispatch a custom event to trigger logout in AuthProvider
+    if (error.response?.status === 401 && error.config?.url !== "/users/login") {
       window.dispatchEvent(new Event("force-logout"));
     }
     return Promise.reject(error);
