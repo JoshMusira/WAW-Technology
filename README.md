@@ -314,7 +314,3 @@ Confirm both token secrets are present and at least 32 characters long. Delete s
 ### Frontend requests use the wrong API
 
 Set `VITE_API_URL` in `Frontend/.env` and restart the frontend development server. Vite environment variables are read when the development server or production build starts.
-
-## License
-
-The project does not currently declare a public license. Confirm the intended licensing terms before distributing it.
